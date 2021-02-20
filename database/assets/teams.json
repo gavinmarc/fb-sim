@@ -1,0 +1,22 @@
+{
+  "bundesliga": {
+    "b04": "Bayer 04 Leverkusen",
+    "bcs": "Hertha BSC",
+    "bie": "Arminia Bielefeld",
+    "bmg": "Borussia Mönchengladbach",
+    "bre": "SV Werder Bremen",
+    "bvb": "Borussia Dortmund",
+    "fca": "FC Augsburg",
+    "fcb": "FC Bayern München",
+    "fcu": "1. FC Union Berlin",
+    "fsv": "1. FSV Mainz 05",
+    "hof": "TSG 1899 Hoffenheim",
+    "koe": "1. FC Köln",
+    "rbl": "RB Leipzig",
+    "s04": "Schalke 04",
+    "scf": "SC Freiburg",
+    "sge": "SG Eintracht Frankfurt",
+    "vfb": "VfB Stuttgart",
+    "wob": "VfL Wolfsburg"
+  }
+}
