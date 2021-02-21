@@ -48,7 +48,7 @@ class FixtureService
   }
 
   /**
-   * Returns a random index for the given set.
+   * Returns a random key for the given set.
    * 
    * @param  Collection $set
    * @param  integer $length
@@ -63,13 +63,14 @@ class FixtureService
     $random = mt_rand(0, $max);
     
     $totalProb = 0;
-    
-    return $set
-      ->filter(function ($result) use (&$totalProb, $random) {
-        $totalProb += $result;
-        return $random <= $totalProb;
-      })
-      ->keys()
       ->first();
+
+    $callback = function ($result) use (&$totalProb, $random) {
+      $totalProb += $result;
+      return $random <= $totalProb;
+    };
+
+    return $set->filter($callback)->keys()->first();
   }
+
 }
