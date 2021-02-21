@@ -19,6 +19,24 @@ class Team extends Model
     return $this->belongsTo(League::class);
   }
 
+  public function homeFixtures()
+  {
+    return $this->hasMany(Fixture::class, 'home_team_id')
+      ->orderBy('matchday', 'desc');
+  }
+
+  public function awayFixtures()
+  {
+    return $this->hasMany(Fixture::class, 'away_team_id')
+      ->orderBy('matchday', 'desc');
+  }
+
+  public function fixtures()
+  {
+    return $this->homeFixtures->merge($this->awayFixtures)
+      ->sortByDesc('matchday');
+  }
+
   public function getLogoAttribute()
   {
     return "/img/logos/teams/{$this->short_name}.png";

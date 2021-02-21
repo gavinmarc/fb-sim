@@ -19,14 +19,19 @@ class League extends Model
     return $this->hasMany(Team::class);
   }
 
-  public function matches()
+  public function fixtures()
   {
-    return $this->hasMany(Match::class);
+    return $this->hasMany(Fixture::class);
   }
 
   public function getMatchdaysAttribute()
   {
     return $this->teams->count() * 2;
+  }
+
+  public function getFixturesPerMatchdayAttribute()
+  {
+    return (int) $this->teams->count() / 2;
   }
 
   public function getLogoAttribute()

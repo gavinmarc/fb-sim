@@ -10,6 +10,11 @@ class Fixture extends Model
 {
   use HasFactory, SoftDeletes;
 
+  protected $fillable = [
+    'league_id', 'season_id', 'home_team_id', 'away_team_id',
+    'matchday', 'home_team_goals', 'away_team_goals'
+  ];
+
   public function league()
   {
     return $this->belongsTo(League::class);
