@@ -3,8 +3,10 @@
 namespace App\Services;
 
 use App\Models\Season;
+use App\Models\Result;
 use App\Models\Team;
 use Facades\App\Helper\Poisson;
+use Illuminate\Support\Collection;
 
 class MatchProbabilityService
 {
@@ -34,36 +36,22 @@ class MatchProbabilityService
     $expectedHomeGoals = $this->expectedHomeGoals($homeTeam, $awayTeam);
     $expectedAwayGoals = $this->expectedAwayGoals($homeTeam, $awayTeam);
 
-    $resultProbibilities = $this->resultProbibilities($expectedHomeGoals, $expectedAwayGoals);
-    $cummulativeResultProbibilities = $this->cummulativeResultProbibilities($resultProbibilities);
-    dd($cummulativeResultProbibilities);
+    return $this->resultProbibilities($expectedHomeGoals, $expectedAwayGoals);
   }
 
   /**
    * Calculates probibilities for home team win, draw and away team win.
    * 
-   * @param  array  $probabilities
-   * @return array
+   * @param  Collection $results
+   * @return Collection
    */
-  private function cummulativeResultProbibilities(array $probabilities)
+  public function cummulativeResultProbibilities(Collection $results)
   {
-    $win = 0;
-    $draw = 0;
-    $lose = 0;
+    $home = $results->where('outcome', Result::HOME)->sum('probability');
+    $draw = $results->where('outcome', Result::DRAW)->sum('probability');
+    $away = $results->where('outcome', Result::AWAY)->sum('probability');
 
-    foreach ($probabilities as $hGoals => $results) {
-      foreach ($results as $aGoals => $prob) {
-        if ($hGoals > $aGoals) {
-          $win += $prob;
-        } else if ($aGoals > $hGoals) {
-          $lose += $prob;
-        } else {
-          $draw += $prob;
-        }
-      }
-    }
-
-    return [$win, $draw, $lose];
+    return collect(compact('home', 'draw', 'away'));
   }
 
   /**
@@ -71,7 +59,7 @@ class MatchProbabilityService
    * 
    * @param  float $homeChance
    * @param  float $awayChance
-   * @return array
+   * @return Collection
    */
   private function resultProbibilities(float $homeChance, float $awayChance)
   {
@@ -85,16 +73,16 @@ class MatchProbabilityService
       $awayGoalsProb[] = Poisson::poisson($awayChance, $occurrence);
     }
 
-    $resultProbibilities = [];
-    foreach ($homeGoalsProb as $homeProb) {
-      $row = [];
-      foreach ($awayGoalsProb as $awayProb) {
-        $row[] = number_format($homeProb * $awayProb, 3);
+    $results = collect();
+    foreach ($homeGoalsProb as $hGoals => $hProb) {
+      foreach ($awayGoalsProb as $aGoals => $aProb) {
+        $results->push(
+          new Result($hGoals, $aGoals, $hProb * $aProb)
+        );
       }
-      $resultProbibilities[] = $row;
     }
 
-    return $resultProbibilities;
+    return $results;
   }
 
   /**
