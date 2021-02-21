@@ -2,12 +2,11 @@
 
 namespace App\Models;
 
+use App\Enums\OutcomeEnum;
+use App\Helper\Outcome;
+
 class Result 
 {
-  public CONST HOME = 'home'; 
-  public CONST DRAW = 'draw'; 
-  public CONST AWAY = 'away'; 
-
   /** @var int */
   public $homeGoals;
 
@@ -25,19 +24,6 @@ class Result
     $this->homeGoals = $homeGoals;
     $this->awayGoals = $awayGoals;
     $this->probability = number_format($probability, 3);
-    $this->outcome = $this->outcome();
-  }
-
-  private function outcome()
-  {
-    if ($this->homeGoals > $this->awayGoals) {
-      return self::HOME;
-    }
-
-    if ($this->awayGoals > $this->homeGoals) {
-      return self::AWAY;
-    }
-
-    return self::DRAW;
+    $this->outcome = Outcome::get($homeGoals, $awayGoals);
   }
 }

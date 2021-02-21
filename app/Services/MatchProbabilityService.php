@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Enums\LocationEnum;
+use App\Enums\OutcomeEnum;
 use App\Models\Season;
 use App\Models\Result;
 use App\Models\Team;
@@ -10,11 +12,6 @@ use Illuminate\Support\Collection;
 
 class MatchProbabilityService
 {
-  private CONST LOCATION_HOME = 'home';
-  private CONST LOCATION_AWAY = 'away';
-  private CONST TYPE_ATTACK = 'attack';
-  private CONST TYPE_DEFENSIVE = 'defensive';
-
   /** @var integer */
   private $currentSeason = 1;
 
@@ -47,9 +44,9 @@ class MatchProbabilityService
    */
   public function cummulativeResultProbibilities(Collection $results)
   {
-    $home = $results->where('outcome', Result::HOME)->sum('probability');
-    $draw = $results->where('outcome', Result::DRAW)->sum('probability');
-    $away = $results->where('outcome', Result::AWAY)->sum('probability');
+    $home = $results->where('outcome', OutcomeEnum::HOME)->sum('probability');
+    $draw = $results->where('outcome', OutcomeEnum::DRAW)->sum('probability');
+    $away = $results->where('outcome', OutcomeEnum::AWAY)->sum('probability');
 
     return collect(compact('home', 'draw', 'away'));
   }
@@ -94,8 +91,8 @@ class MatchProbabilityService
    */
   private function expectedHomeGoals(Team $homeTeam, Team $awayTeam)
   {
-    $homeTeamAttackStrength = $this->attackStrength($homeTeam, self::LOCATION_HOME);
-    $awayTeamDefensiveStrength = $this->defensiveStrength($awayTeam, self::LOCATION_AWAY);
+    $homeTeamAttackStrength = $this->attackStrength($homeTeam, LocationEnum::HOME);
+    $awayTeamDefensiveStrength = $this->defensiveStrength($awayTeam, LocationEnum::AWAY);
     $avgHomeLeagueGoals = $this->leagueFixtures->sum('home_team_goals') / $this->leagueFixtures->count();
     return $homeTeamAttackStrength * $awayTeamDefensiveStrength * $avgHomeLeagueGoals;
   }
@@ -109,8 +106,8 @@ class MatchProbabilityService
    */
   private function expectedAwayGoals(Team $homeTeam, Team $awayTeam)
   {
-    $awayTeamAttackStrength = $this->attackStrength($awayTeam, self::LOCATION_AWAY);
-    $homeTeamDefensiveStrength = $this->defensiveStrength($homeTeam, self::LOCATION_HOME);
+    $awayTeamAttackStrength = $this->attackStrength($awayTeam, LocationEnum::AWAY);
+    $homeTeamDefensiveStrength = $this->defensiveStrength($homeTeam, LocationEnum::HOME);
     $avgAwayLeagueGoals = $this->leagueFixtures->sum('away_team_goals') / $this->leagueFixtures->count();
     return $awayTeamAttackStrength * $homeTeamDefensiveStrength * $avgAwayLeagueGoals;
   }
@@ -124,7 +121,7 @@ class MatchProbabilityService
    */
   private function attackStrength(Team $team, string $location)
   {
-    return $this->strength($team, $location, self::TYPE_ATTACK);
+    return $this->strength($team, $location, true);
   }  
 
   /**
@@ -136,17 +133,17 @@ class MatchProbabilityService
    */
   private function defensiveStrength(Team $team, string $location)
   {
-    return $this->strength($team, $location, self::TYPE_DEFENSIVE);
+    return $this->strength($team, $location, false);
   }  
 
-  private function strength(Team $team, string $location, string $type)
+  private function strength(Team $team, string $location, bool $forAttack = true)
   {
     $relation = "{$location}Fixtures";
     $teamFixtures = $team->$relation()->where('season_id', $this->currentSeason)->get();
 
     $attribute = $location;
-    if ($type == self::TYPE_DEFENSIVE) {
-      $attribute = $location == self::LOCATION_HOME ? self::LOCATION_AWAY : self::LOCATION_HOME;
+    if (!$forAttack) {
+      $attribute = $location == LocationEnum::HOME ? LocationEnum::AWAY : LocationEnum::HOME;
     }
 
     $avgTeamGoals = $teamFixtures->sum("{$attribute}_team_goals") / $teamFixtures->count();

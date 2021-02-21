@@ -9,8 +9,8 @@ class Season extends Model
 {
   use HasFactory;
 
-  public static function currentSeason(Team $team)
+  public static function currentSeason($model)
   {
-    return optional($team->fixtures()->last())->season_id;
+    return optional($model->fixtures->last())->season_id;
   }
 }

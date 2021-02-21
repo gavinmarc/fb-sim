@@ -39,4 +39,13 @@ class League extends Model
     $name = \Str::kebab($this->name);
     return "img/logos/leagues/{$name}.png";
   }
+
+  public function table()
+  {
+    return $this->teams->sortBy([
+      fn ($a, $b) => $b['statistic']['pts'] <=> $a['statistic']['pts'],
+      fn ($a, $b) => $b['statistic']['gd'] <=> $a['statistic']['gd'],
+      fn ($a, $b) => $b['statistic']['gs'] <=> $a['statistic']['gs'],
+    ]);
+  }
 }

@@ -63,7 +63,6 @@ class FixtureService
     $random = mt_rand(0, $max);
     
     $totalProb = 0;
-      ->first();
 
     $callback = function ($result) use (&$totalProb, $random) {
       $totalProb += $result;

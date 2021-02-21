@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Facades\App\Services\StatisticService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -31,7 +32,7 @@ class Team extends Model
       ->orderBy('matchday', 'desc');
   }
 
-  public function fixtures()
+  public function getFixturesAttribute()
   {
     return $this->homeFixtures->merge($this->awayFixtures)
       ->sortByDesc('matchday');
@@ -40,5 +41,10 @@ class Team extends Model
   public function getLogoAttribute()
   {
     return "/img/logos/teams/{$this->short_name}.png";
+  }
+
+  public function getStatisticAttribute()
+  {
+    return StatisticService::team($this);
   }
 }
