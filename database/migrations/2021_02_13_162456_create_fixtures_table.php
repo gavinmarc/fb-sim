@@ -20,8 +20,8 @@ class CreateFixturesTable extends Migration
       $table->unsignedInteger('matchday');
       $table->foreignId('home_team_id')->constrained('teams');
       $table->foreignId('away_team_id')->constrained('teams');
-      $table->unsignedInteger('home_team_goals');
-      $table->unsignedInteger('away_team_goals');
+      $table->unsignedInteger('home_team_goals')->nullable();
+      $table->unsignedInteger('away_team_goals')->nullable();
       $table->timestamps();
       $table->softDeletes();
     });

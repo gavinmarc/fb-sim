@@ -9,7 +9,6 @@ use Livewire\WithPagination;
 
 class Read extends Component
 {
-  use HasSearchQuery;
   use WithPagination;
 
   protected $paginationTheme = 'bootstrap';

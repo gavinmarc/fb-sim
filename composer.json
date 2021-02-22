@@ -14,6 +14,7 @@
         "guzzlehttp/guzzle": "^7.0.1",
         "laravel/framework": "^8.12",
         "laravel/tinker": "^2.5",
+        "mnito/round-robin": "^2.0",
         "rezaamini-ir/laravel-easypanel": "^1.3"
     },
     "require-dev": {

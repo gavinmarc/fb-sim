@@ -28,7 +28,7 @@ class MatchProbabilityService
   public function calculate(Team $homeTeam, Team $awayTeam)
   {
     $this->currentSeason = Season::currentSeason($homeTeam);
-    $this->leagueFixtures = $homeTeam->league->fixtures()->where('season_id', $this->currentSeason)->get();
+    $this->leagueFixtures = $homeTeam->league->fixtures()->completedForSeason($this->currentSeason)->get();
 
     $expectedHomeGoals = $this->expectedHomeGoals($homeTeam, $awayTeam);
     $expectedAwayGoals = $this->expectedAwayGoals($homeTeam, $awayTeam);
@@ -139,7 +139,7 @@ class MatchProbabilityService
   private function strength(Team $team, string $location, bool $forAttack = true)
   {
     $relation = "{$location}Fixtures";
-    $teamFixtures = $team->$relation()->where('season_id', $this->currentSeason)->get();
+    $teamFixtures = $team->$relation()->completedForSeason($this->currentSeason)->get();
 
     $attribute = $location;
     if (!$forAttack) {

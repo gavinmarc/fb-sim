@@ -30,13 +30,13 @@ class FixturesImport extends Command
   {
     $this->handleInput();
 
-    $fixturesPerMatchday = $this->league->fixtures_per_matchday;
     foreach ($this->fixtures as $i => $fixture) {
-      $matchday = (int) ($i / $fixturesPerMatchday) + 1;
       $homeTeam = $this->findTeam($fixture['home_team']);
       $awayTeam = $this->findTeam($fixture['away_team']);
+      $homeGoals = strlen($fixture['home_team_goals']) == 0 ? null : (int) $fixture['home_team_goals'];
+      $awayGoals = strlen($fixture['away_team_goals']) == 0 ? null : (int) $fixture['away_team_goals'];
       $this->createOrUpdateFixture(
-        $matchday, $homeTeam, $awayTeam, $fixture['home_team_goals'], $fixture['away_team_goals']
+        $fixture['matchday'], $homeTeam, $awayTeam, $homeGoals, $awayGoals
       );
     }
 
@@ -46,14 +46,14 @@ class FixturesImport extends Command
   /**
    * Creates or updates fixture for the given teams.
    * 
-   * @param  int    $matchday 
-   * @param  Team   $hTeam    
-   * @param  Team   $aTeam    
-   * @param  int    $hGoals   
-   * @param  int    $aGoals   
+   * @param  int $matchday 
+   * @param  Team $hTeam    
+   * @param  Team $aTeam    
+   * @param  int|null $hGoals   
+   * @param  int|null $aGoals   
    * @return void    
    */
-  private function createOrUpdateFixture(int $matchday, Team $hTeam, Team $aTeam, int $hGoals, int $aGoals)
+  private function createOrUpdateFixture(int $matchday, Team $hTeam, Team $aTeam, ?int $hGoals, ?int $aGoals)
   {
     Fixture::updateOrCreate([
       'league_id' => $this->league->id, 
@@ -63,7 +63,7 @@ class FixturesImport extends Command
       'matchday' => $matchday
     ], [
       'home_team_goals' => $hGoals,
-      'away_team_goals' => $aGoals,
+      'away_team_goals' => $aGoals
     ]);
   }
 
@@ -109,10 +109,11 @@ class FixturesImport extends Command
       ->map(function ($row, $key) {      
         $columns = \Str::of($row)->explode(',');
         return [
-          'home_team' => $columns->pull(3),
-          'away_team' => $columns->pull(4),
-          'home_team_goals' => $columns->pull(5),
-          'away_team_goals' => $columns->pull(6),
+          'matchday' => $columns->pull(0),
+          'home_team' => $columns->pull(2),
+          'away_team' => $columns->pull(5),
+          'home_team_goals' => $columns->pull(3),
+          'away_team_goals' => $columns->pull(4),
         ];
       });
   }

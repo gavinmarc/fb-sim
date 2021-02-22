@@ -18,8 +18,8 @@ class StatisticService
   {
     $season = Season::currentSeason($team);
 
-    $hf = $team->homeFixtures()->where('season_id', $season)->get();
-    $af = $team->awayFixtures()->where('season_id', $season)->get();
+    $hf = $team->homeFixtures()->completedForSeason($season)->get();
+    $af = $team->awayFixtures()->completedForSeason($season)->get();
 
     // matches played
     $mp = $hf->merge($af)->count();
