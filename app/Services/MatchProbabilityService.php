@@ -7,33 +7,58 @@ use App\Enums\OutcomeEnum;
 use App\Models\Season;
 use App\Models\Result;
 use App\Models\Team;
+use App\Models\Fixture;
 use Facades\App\Helper\Poisson;
 use Illuminate\Support\Collection;
 
 class MatchProbabilityService
 {
-  /** @var integer */
-  private $currentSeason = 1;
-
   /** @var Collection */
   private $leagueFixtures;
+
+  /** @var integer */
+  private $season;
 
   /**
    * Calculates poisson distribution for number of goals per team.
    * 
-   * @param  Team   $homeTeam 
-   * @param  Team   $awayTeam 
+   * @param  Fixture $fixture 
    * @return array       
    */
-  public function calculate(Team $homeTeam, Team $awayTeam)
+  public function calculate(Fixture $fixture)
   {
-    $this->currentSeason = Season::currentSeason($homeTeam);
-    $this->leagueFixtures = $homeTeam->league->fixtures()->completedForSeason($this->currentSeason)->get();
+    $homeTeam = $fixture->homeTeam;
+    $awayTeam = $fixture->awayTeam;
+
+    $this->season = $fixture->season_id;
+    $this->leagueFixtures =  $this->loadFixtures($fixture, $this->season);
+
+    // load last seasons fixtures, if not enough fixtures are completed 
+    if (count($this->leagueFixtures) < 45) {
+      $this->leagueFixtures = $this->leagueFixtures->merge(
+        $this->loadFixtures($fixture, $this->season - 1)
+      );
+    }
 
     $expectedHomeGoals = $this->expectedHomeGoals($homeTeam, $awayTeam);
     $expectedAwayGoals = $this->expectedAwayGoals($homeTeam, $awayTeam);
 
     return $this->resultProbibilities($expectedHomeGoals, $expectedAwayGoals);
+  }
+
+  /**
+   * Loads league fixtures for the given season id.
+   * 
+   * @param  Fixture $fixture
+   * @param  int $seasonId
+   * @return Collection          
+   */
+  private function loadFixtures(Fixture $fixture, int $seasonId)
+  {
+    return Fixture::query()
+      ->where('league_id', $fixture->league_id)
+      ->completedForSeason($seasonId)
+      ->get();
   }
 
   /**
@@ -60,7 +85,7 @@ class MatchProbabilityService
    */
   private function resultProbibilities(float $homeChance, float $awayChance)
   {
-    $occurrences = range(0, 9);
+    $occurrences = range(0, 5);
 
     $homeGoalsProb = [];
     $awayGoalsProb = [];
@@ -139,7 +164,13 @@ class MatchProbabilityService
   private function strength(Team $team, string $location, bool $forAttack = true)
   {
     $relation = "{$location}Fixtures";
-    $teamFixtures = $team->$relation()->completedForSeason($this->currentSeason)->get();
+    $teamFixtures = $team->$relation()->completedForSeason($this->season)->get();
+
+    if (count($teamFixtures) < 5) {
+      $teamFixtures = $teamFixtures->merge(
+        $team->$relation()->completedForSeason($this->season - 1)->get()
+      );
+    }
 
     $attribute = $location;
     if (!$forAttack) {

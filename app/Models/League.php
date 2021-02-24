@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Facades\App\Services\StatisticService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -40,12 +41,19 @@ class League extends Model
     return "img/logos/leagues/{$name}.png";
   }
 
-  public function table()
+  public function table(int $currentSeason)
   {
-    return $this->teams->sortBy([
-      fn ($a, $b) => $b['statistic']['pts'] <=> $a['statistic']['pts'],
-      fn ($a, $b) => $b['statistic']['gd'] <=> $a['statistic']['gd'],
-      fn ($a, $b) => $b['statistic']['gs'] <=> $a['statistic']['gs'],
-    ]);
+    $this->load('teams', 'teams.homeFixtures', 'teams.awayFixtures');
+
+    return $this->teams
+      ->map(function ($team) use ($currentSeason) {
+        $teamStatistic = StatisticService::team($team, $currentSeason);
+        return array_merge($team->attributesToArray(), $teamStatistic);
+      })->sortBy([
+        fn ($a, $b) => $b['pts'] <=> $a['pts'],
+        fn ($a, $b) => $b['gd'] <=> $a['gd']
+        // TODO: Error when gd = 0
+        // fn ($a, $b) => $b['gd'] <=> $a['gd']
+      ]);
   }
 }

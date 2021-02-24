@@ -15,7 +15,7 @@ class Fixture extends Model
 
   protected $fillable = [
     'league_id', 'season_id', 'home_team_id', 'away_team_id',
-    'matchday', 'home_team_goals', 'away_team_goals', 'finished'
+    'matchday', 'home_team_goals', 'away_team_goals'
   ];
 
   protected $appends = [
@@ -64,7 +64,22 @@ class Fixture extends Model
 
   public function getOutcomeAttribute()
   {
-    return Outcome::get($this->home_team_goals, $this->away_team_goals);
+    return $this->isCompleted() ? 
+      Outcome::get($this->home_team_goals, $this->away_team_goals) : 
+      null;
+  }
+
+  public function isCompleted()
+  {
+    return !is_null($this->home_team_goals) && !is_null($this->away_team_goals);
+  }
+
+  public function applyResult(Result $result)
+  {
+    $this->update([
+      'home_team_goals' => $result->homeGoals,
+      'away_team_goals' => $result->awayGoals,
+    ]);
   }
 
 }

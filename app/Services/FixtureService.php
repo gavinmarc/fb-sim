@@ -3,7 +3,7 @@
 namespace App\Services;
 
 use App\Models\Result;
-use App\Models\Team;
+use App\Models\Fixture;
 use Facades\App\Services\MatchProbabilityService;
 use Illuminate\Support\Collection;
 
@@ -12,13 +12,12 @@ class FixtureService
   /**
    * Simulates a fixture for the given teams.
    * 
-   * @param  Team $homeTeam
-   * @param  Team $awayTeam
+   * @param  Fixture $fixture
    * @return Result         
    */
-  public function simulate(Team $homeTeam, Team $awayTeam)
+  public function simulate(Fixture $fixture)
   {
-    $results = MatchProbabilityService::calculate($homeTeam, $awayTeam);
+    $results = MatchProbabilityService::calculate($fixture);
 
     $predictions = MatchProbabilityService::cummulativeResultProbibilities($results);
 

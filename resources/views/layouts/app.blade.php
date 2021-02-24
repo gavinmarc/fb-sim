@@ -21,7 +21,7 @@
       @include('layouts.navigation')
 
       <!-- Page Content -->
-      <main>
+      <main class="max-w-screen-lg mx-auto my-8">
         {{ $slot }}
       </main>
     </div>

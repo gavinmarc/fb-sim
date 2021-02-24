@@ -15,6 +15,10 @@ class Team extends Model
     'name', 'short_name'
   ];
 
+  protected $appends = [
+    'logo'
+  ];
+
   public function league()
   {
     return $this->belongsTo(League::class);
@@ -45,6 +49,8 @@ class Team extends Model
 
   public function getStatisticAttribute()
   {
-    return StatisticService::team($this);
+    $currentSeason = Season::currentSeason($this);
+
+    return StatisticService::team($this, $currentSeason);
   }
 }

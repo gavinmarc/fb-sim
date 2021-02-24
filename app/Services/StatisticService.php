@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Enums\OutcomeEnum;
-use App\Models\Season;
 use App\Models\Team;
 
 class StatisticService
@@ -12,14 +11,14 @@ class StatisticService
    * Returns array containing season statistics for the given team.
    *  
    * @param  Team $team
+   * @param  int $season
    * @return array
    */
-  public function team(Team $team)
+  public function team(Team $team, int $season)
   {
-    $season = Season::currentSeason($team);
-
-    $hf = $team->homeFixtures()->completedForSeason($season)->get();
-    $af = $team->awayFixtures()->completedForSeason($season)->get();
+    $callback = fn ($fix) => $fix->season_id == $season && $fix->isCompleted();
+    $hf = $team->homeFixtures->filter($callback);
+    $af = $team->awayFixtures->filter($callback);
 
     // matches played
     $mp = $hf->merge($af)->count();
