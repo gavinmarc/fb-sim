@@ -18,4 +18,9 @@ class User extends Authenticatable
     'password', 'remember_token',
   ];
   
+  public function getGravatarAttribute()
+  {
+    $hash = md5(strtolower(trim($this->email)));
+    return "http://www.gravatar.com/avatar/$hash";
+  }
 }
