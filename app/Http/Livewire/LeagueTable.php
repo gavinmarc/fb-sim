@@ -8,23 +8,32 @@ use Livewire\Component;
 
 class LeagueTable extends Component
 {
+  public $league;
+
   public $table = [];
 
   public $season = null;
 
-  protected $listeners = [
-    'seasonChanged'
-  ];
+  protected $listeners = ['seasonChanged'];
 
   public function mount()
   {
-    $league = League::find(1);
+    $this->league = League::find(1);
 
     if (!$this->season) {
-      $this->season = Season::currentSeason($league);
+      $this->season = Season::currentSeason($this->league);
     }
 
-    $this->table = $league->table($this->season);
+    $this->loadTable();
+  }
+
+  private function loadTable()
+  {
+    $this->table = $this->league
+      ->tables()
+      ->where('season_id', $this->season)
+      ->with(['entries', 'entries.team'])
+      ->first();
   }
 
   public function render()
@@ -34,10 +43,8 @@ class LeagueTable extends Component
 
   public function seasonChanged($selected)
   {
-    dd($selected);
-
     $this->season = $selected;
 
-    $this->table = $league->table($this->season);
+    $this->loadTable();
   }
 }

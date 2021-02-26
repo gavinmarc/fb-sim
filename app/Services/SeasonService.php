@@ -14,13 +14,20 @@ class SeasonService
    * 
    * @param  League $league
    * @param  boolean $force
-   * @return void
+   * @return Season
    */
   public function new(League $league, bool $force = false)
   {
     // check if the league still has fixtures to play
-    if ($league->fixtures()->notCompleted()->exists() && !$force) {
-      throw new \Exception("League {$league->id} has still fixtures left.");
+    $fixture = $league->fixtures()
+      ->with('season')
+      ->notCompleted()
+      ->orderBy('season_id', 'asc')
+      ->orderBy('matchday', 'asc')
+      ->first();
+
+    if ($fixture && !$force) {
+      return $fixture->season;
     }
 
     $season = $this->createSeason($league);
@@ -30,6 +37,8 @@ class SeasonService
     $fixtures = $this->formatFixtures($schedule, $season);
     
     $league->fixtures()->createMany($fixtures);
+
+    return $season;
   }
 
   /**
@@ -62,9 +71,8 @@ class SeasonService
   private function createSchedule(League $league)
   {
     $teams = $league->teams->pluck('id')->toArray();
-    $rounds = $league->teams->count() * 2;
 
-    return (new ScheduleBuilder($teams, $rounds))->build()->full();
+    return (new ScheduleBuilder($teams, $league->matchdays))->build()->full();
   }
 
   /**

@@ -9,10 +9,20 @@ class Season extends Model
 {
   use HasFactory;
 
-  protected $fillable = ['years'];
+  public static function lastSeason($model)
+  {
+    return $model->fixtures()
+      ->orderBy('season_id', 'desc')
+      ->select(['season_id'])
+      ->distinct('season_id')
+      ->pluck('season_id')
+      ->get(1);
+  }
 
   public static function currentSeason($model)
   {
-    return optional($model->fixtures->last())->season_id;
+    return $model->fixtures()
+      ->completed()
+      ->max('season_id');
   }
 }

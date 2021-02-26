@@ -46,6 +46,7 @@ class StatisticService
     // points
     $pts = ($w * 3) + $d;
 
-    return compact('mp', 'w', 'd', 'l', 'gf', 'ga', 'gd', 'pts');
+    $team_id = $team->id;
+    return compact('team_id', 'mp', 'w', 'd', 'l', 'gf', 'ga', 'gd', 'pts');
   }
 }

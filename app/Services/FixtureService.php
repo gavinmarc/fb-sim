@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Events\MatchdayCompleted;
 use App\Models\Result;
 use App\Models\Fixture;
 use Facades\App\Services\MatchProbabilityService;
@@ -9,6 +10,13 @@ use Illuminate\Support\Collection;
 
 class FixtureService
 {
+  public function simulateMatchday(Collection $fixtures)
+  {
+    $fixtures->each->simulate();
+
+    MatchdayCompleted::dispatch($fixtures);
+  }
+
   /**
    * Simulates a fixture for the given teams.
    * 

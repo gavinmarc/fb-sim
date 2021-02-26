@@ -11,10 +11,6 @@ class Team extends Model
 {
   use HasFactory, SoftDeletes;
 
-  protected $fillable = [
-    'name', 'short_name'
-  ];
-
   protected $appends = [
     'logo'
   ];

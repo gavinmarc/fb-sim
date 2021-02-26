@@ -19,6 +19,9 @@ class MatchProbabilityService
   /** @var integer */
   private $season;
 
+  /** @var integer */
+  private $lastSeason;
+
   /**
    * Calculates poisson distribution for number of goals per team.
    * 
@@ -35,8 +38,9 @@ class MatchProbabilityService
 
     // load last seasons fixtures, if not enough fixtures are completed 
     if (count($this->leagueFixtures) < 45) {
+      $this->lastSeason = Season::lastSeason($fixture->league);
       $this->leagueFixtures = $this->leagueFixtures->merge(
-        $this->loadFixtures($fixture, $this->season - 1)
+        $this->loadFixtures($fixture, $this->lastSeason)
       );
     }
 
@@ -168,7 +172,7 @@ class MatchProbabilityService
 
     if (count($teamFixtures) < 5) {
       $teamFixtures = $teamFixtures->merge(
-        $team->$relation()->completedForSeason($this->season - 1)->get()
+        $team->$relation()->completedForSeason($this->lastSeason)->get()
       );
     }
 

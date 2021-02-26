@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\OutcomeEnum;
 use App\Helper\Outcome;
+use Facades\App\Services\FixtureService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -12,11 +13,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Fixture extends Model
 {
   use HasFactory, SoftDeletes;
-
-  protected $fillable = [
-    'league_id', 'season_id', 'home_team_id', 'away_team_id',
-    'matchday', 'home_team_goals', 'away_team_goals'
-  ];
 
   protected $appends = [
     'outcome'
@@ -74,8 +70,10 @@ class Fixture extends Model
     return !is_null($this->home_team_goals) && !is_null($this->away_team_goals);
   }
 
-  public function applyResult(Result $result)
+  public function simulate()
   {
+    $result = FixtureService::simulate($this);
+
     $this->update([
       'home_team_goals' => $result->homeGoals,
       'away_team_goals' => $result->awayGoals,
