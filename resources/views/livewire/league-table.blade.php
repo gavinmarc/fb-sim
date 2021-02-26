@@ -5,8 +5,10 @@
     <th>W</th>
     <th>D</th>
     <th>L</th>
-    <th>GF</th>
-    <th>GA</th>
+    @if($full)
+      <th>GF</th>
+      <th>GA</th>
+    @endif
     <th>GD</th>
     <th>PTS</th>
   </tr>
@@ -20,8 +22,10 @@
     <td class="pt-1">{{ $entry->w }}</td>
     <td class="pt-1">{{ $entry->d }}</td>
     <td class="pt-1">{{ $entry->l }}</td>
-    <td class="pt-1">{{ $entry->gf }}</td>
-    <td class="pt-1">{{ $entry->ga }}</td>
+    @if($full)
+      <td class="pt-1">{{ $entry->gf }}</td>
+      <td class="pt-1">{{ $entry->ga }}</td>
+    @endif
     <td class="pt-1">{{ $entry->gd }}</td>
     <td class="pt-1">{{ $entry->pts }}</td>
   </tr>

@@ -14,6 +14,8 @@ class LeagueTable extends Component
 
   public $season = null;
 
+  public $full = true;
+
   protected $listeners = ['seasonChanged'];
 
   public function mount()

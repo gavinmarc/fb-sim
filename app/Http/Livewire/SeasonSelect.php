@@ -12,7 +12,7 @@ class SeasonSelect extends Component
   public function render()
   {
     return view('livewire.season-select', [
-      'seasons' => Season::all()
+      'seasons' => Season::orderBy('id', 'desc')->get()
     ]);
   }
 
