@@ -1,8 +1,8 @@
 <x-app-layout>
-  <div class="">
+  <div class="mx-auto">
     <livewire:season-select>
   </div>
-  <div class="">
+  <x-card>
     <livewire:league-table>
-  </div>
+  </x-card>
 </x-app-layout>

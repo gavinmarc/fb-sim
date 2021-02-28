@@ -9,6 +9,12 @@ module.exports = {
 
   theme: {
     extend: {
+      colors: {
+        gray: {
+          darkest: '#121314',
+          dark: '#212325'
+        }
+      },
       fontFamily: {
         sans: ['Nunito', ...defaultTheme.fontFamily.sans],
       },
@@ -17,6 +23,7 @@ module.exports = {
 
   variants: {
     extend: {
+      borderWidth: ['last'],
       opacity: ['disabled'],
     },
   },

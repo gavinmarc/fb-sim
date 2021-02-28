@@ -70,6 +70,7 @@ class League extends Model
     }
 
     return $this->fixtures()
+      ->with('homeTeam', 'awayTeam')
       ->where('season_id', $seasonId)
       ->where('matchday', $matchday)
       ->get();
