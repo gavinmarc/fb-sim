@@ -111,11 +111,15 @@ class Fixture extends Model
       $matchday = 1;
     }
 
-    return self::query()
-      ->with('homeTeam', 'awayTeam')
+    $fixtures = self::query()
+      ->with('homeTeam', 'awayTeam', 'probabilities')
       ->where('season_id', $seasonId)
       ->where('matchday', $matchday)
       ->get();
+
+    FixtureService::createProbibilities($fixtures);
+
+    return $fixtures;
   }
 
 }

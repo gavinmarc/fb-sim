@@ -14,21 +14,31 @@ class FixtureService
    * Creates probibilities for the given fixtures for following events:
    * match outcome, over/under, possible results
    * 
-   * @param  mixed $fixture
+   * @param  mixed $fixtures
+   * @param  boolean $force
    * @return void
    */
-  public function createProbibilities($fixtures)
+  public function createProbibilities($fixtures, bool $force = false)
   {
     if (!$fixtures instanceof Collection) {
       $fixtures = collect($fixtures);
     }
 
-    $results = MatchProbabilityService::calculate($fixture);
-    $outcome = MatchProbabilityService::cummulativeResultProbibilities($results);
-    $over_under = MatchProbabilityService::overUnderProbibilities($results);
+    foreach ($fixtures as $fixture) {
+      // check if relation already exists
+      if ($fixture->probabilities && !$force) {
+        continue;
+      }
 
-    $fixture->probabilities()
-      ->updateOrCreate([], compact('outcome', 'over_under', 'results'));
+      // calculate probabilities
+      $results = MatchProbabilityService::calculate($fixture);
+      $outcome = MatchProbabilityService::cummulativeResultProbibilities($results);
+      $over_under = MatchProbabilityService::overUnderProbibilities($results);
+
+      // update or create relation
+      $fixture->probabilities()
+        ->updateOrCreate([], compact('outcome', 'over_under', 'results'));
+    }
   }
 
   /**
