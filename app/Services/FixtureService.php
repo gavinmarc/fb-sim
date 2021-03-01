@@ -3,13 +3,40 @@
 namespace App\Services;
 
 use App\Events\MatchdayCompleted;
-use App\Models\Result;
+use App\Models\Helper\Result;
 use App\Models\Fixture;
 use Facades\App\Services\MatchProbabilityService;
 use Illuminate\Support\Collection;
 
 class FixtureService
 {
+  /**
+   * Creates probibilities for the given fixtures for following events:
+   * match outcome, over/under, possible results
+   * 
+   * @param  mixed $fixture
+   * @return void
+   */
+  public function createProbibilities($fixtures)
+  {
+    if (!$fixtures instanceof Collection) {
+      $fixtures = collect($fixtures);
+    }
+
+    $results = MatchProbabilityService::calculate($fixture);
+    $outcome = MatchProbabilityService::cummulativeResultProbibilities($results);
+    $over_under = MatchProbabilityService::overUnderProbibilities($results);
+
+    $fixture->probabilities()
+      ->updateOrCreate([], compact('outcome', 'over_under', 'results'));
+  }
+
+  /**
+   * Simulates all given fixtures.
+   * 
+   * @param  Collection $fixtures
+   * @return void
+   */
   public function simulateMatchday(Collection $fixtures)
   {
     $fixtures->each->simulate();
@@ -25,13 +52,16 @@ class FixtureService
    */
   public function simulate(Fixture $fixture)
   {
-    $results = MatchProbabilityService::calculate($fixture);
+    if (!$fixture->probabilities) {
+      throw new \Exception('FixtureService: Missing relation for fixture');
+    }
 
-    $predictions = MatchProbabilityService::cummulativeResultProbibilities($results);
+    $resultsProb = $fixture->probabilities->results;
+    $outcomeProb = $fixture->probabilities->outcome;
 
-    $outcome = $this->randomFromSet($predictions);
+    $outcome = $this->randomFromSet($outcomeProb->toCollection());
 
-    return $this->randomResult($outcome, $results);
+    return $this->randomResult($outcome, $resultsProb);
   }
 
   /**
@@ -61,7 +91,7 @@ class FixtureService
    * @param  integer $length
    * @return mixed
    */
-  private function randomFromSet(Collection $set, int $length = 10000)
+  private function randomFromSet(Collection $set, int $length = 100000)
   {
     $set = $set->mapWithKeys(fn ($prob, $key) => [$key => $prob * $length]);
 

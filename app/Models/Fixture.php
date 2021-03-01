@@ -19,6 +19,10 @@ class Fixture extends Model
     'outcome'
   ];
 
+  //======================================================================
+  // SCOPES
+  //======================================================================
+
   public function scopeCompletedForSeason(Builder $query, int $seasonId)
   {
     return $query->completed()->forSeason($seasonId);
@@ -39,6 +43,10 @@ class Fixture extends Model
     return $query->whereNull('home_team_goals')->whereNull('away_team_goals');
   }
 
+  //======================================================================
+  // RELATIONS
+  //======================================================================
+
   public function season()
   {
     return $this->belongsTo(Season::class);
@@ -54,12 +62,25 @@ class Fixture extends Model
     return $this->belongsTo(Team::class);
   }
 
+  public function probabilities()
+  {
+    return $this->hasOne(FixtureProbability::class);
+  }
+
+  //======================================================================
+  // ACCESSORS
+  //======================================================================
+
   public function getOutcomeAttribute()
   {
     return $this->isCompleted() ? 
       Outcome::get($this->home_team_goals, $this->away_team_goals) : 
       null;
   }
+
+  //======================================================================
+  // HELPER FUNCTIONS
+  //======================================================================
 
   public function isCompleted()
   {

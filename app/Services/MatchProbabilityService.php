@@ -5,7 +5,9 @@ namespace App\Services;
 use App\Enums\LocationEnum;
 use App\Enums\OutcomeEnum;
 use App\Models\Season;
-use App\Models\Result;
+use App\Models\Helper\Outcome;
+use App\Models\Helper\OverUnder;
+use App\Models\Helper\Result;
 use App\Models\Team;
 use App\Models\Fixture;
 use Facades\App\Helper\Poisson;
@@ -66,7 +68,7 @@ class MatchProbabilityService
    * Calculates probibilities for home team win, draw and away team win.
    * 
    * @param  Collection $results
-   * @return Collection
+   * @return Outcome
    */
   public function cummulativeResultProbibilities(Collection $results)
   {
@@ -74,7 +76,27 @@ class MatchProbabilityService
     $draw = $results->where('outcome', OutcomeEnum::DRAW)->sum('probability');
     $away = $results->where('outcome', OutcomeEnum::AWAY)->sum('probability');
 
-    return collect(compact('home', 'draw', 'away'));
+    return new Outcome($home, $draw, $away);
+  }
+
+  /**
+   * Calculates probibilities for home team win, draw and away team win.
+   * 
+   * @param  Collection $results
+   * @return OverUnder
+   */
+  public function overUnderProbibilities(Collection $results)
+  {
+    $data = [
+      'over15' => $results->filter(fn ($res) => $res->goals() > 1.5)->sum('probability'),
+      'under15' => $results->filter(fn ($res) => $res->goals() < 1.5)->sum('probability'),
+      'over25' => $results->filter(fn ($res) => $res->goals() > 2.5)->sum('probability'),
+      'under25' => $results->filter(fn ($res) => $res->goals() < 2.5)->sum('probability'),
+      'over35' => $results->filter(fn ($res) => $res->goals() > 3.5)->sum('probability'),
+      'under35' => $results->filter(fn ($res) => $res->goals() < 3.5)->sum('probability'),
+    ];
+
+    return new OverUnder($data);
   }
 
   /**
