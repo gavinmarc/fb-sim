@@ -16,7 +16,6 @@ class CreateTablesTable extends Migration
     Schema::create('tables', function (Blueprint $table) {
       $table->id();
       $table->foreignId('season_id')->constrained();
-      $table->foreignId('league_id')->constrained();
       $table->boolean('completed')->default(false);
       $table->timestamps();
     });

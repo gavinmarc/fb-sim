@@ -2,8 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\RecordController;
 use App\Http\Controllers\SeasonController;
-use App\Http\Controllers\StatisticController;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,7 +17,7 @@ use App\Http\Controllers\StatisticController;
 */
 
 Route::get('/', HomeController::class)->name('home');
-Route::get('/statistic', StatisticController::class)->name('statistic');
-Route::get('/season', SeasonController::class)->name('season');
+Route::get('/records', RecordController::class)->name('records');
+Route::get('/seasons', SeasonController::class)->name('seasons');
 
 require __DIR__.'/auth.php';

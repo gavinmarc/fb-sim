@@ -2,20 +2,16 @@
 
 namespace App\Http\Livewire;
 
-use App\Models\League;
+use App\Models\Fixture;
 use Livewire\Component;
 
 class MatchdayOverview extends Component
 {
-  public $league;
-
   public $fixtures;
 
   public function mount()
   {
-    $this->league = League::find(1);
-
-    $this->fixtures = $this->league->nextMatchdayFixtures();
+    $this->fixtures = Fixture::nextMatchday();
   }
 
   public function render()

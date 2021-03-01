@@ -3,22 +3,18 @@
 namespace App\Console\Commands;
 
 use App\Models\Fixture;
-use App\Models\League;
 use App\Models\Season;
 use App\Models\Team;
 use Illuminate\Console\Command;
 
 class FixturesImport extends Command
 {
-  protected $signature = 'fixtures:import {--league=} {--season=} {--file=}';
+  protected $signature = 'fixtures:import {--season=} {--file=}';
 
   protected $description = 'Imports fixtures from the given file.';
 
   /** @var array */
   private $fixtures = null;
-
-  /** @var League */
-  private $league = null;
 
   /** @var Season */
   private $season = null;
@@ -56,7 +52,6 @@ class FixturesImport extends Command
   private function createOrUpdateFixture(int $matchday, Team $hTeam, Team $aTeam, ?int $hGoals, ?int $aGoals)
   {
     Fixture::updateOrCreate([
-      'league_id' => $this->league->id, 
       'season_id' => $this->season->id, 
       'home_team_id' => $hTeam->id, 
       'away_team_id' => $aTeam->id,
@@ -96,8 +91,7 @@ class FixturesImport extends Command
    */
   private function handleInput()
   {
-    $this->league = League::where('name', $this->option('league'))->with('teams')->first();
-    $this->teams = $this->league->teams;
+    $this->teams = Team::all();
 
     $this->season = Season::find($this->option('season', 1));
 

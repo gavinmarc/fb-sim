@@ -16,7 +16,6 @@ class CreateFixturesTable extends Migration
     Schema::create('fixtures', function (Blueprint $table) {
       $table->id();
       $table->foreignId('season_id')->constrained();
-      $table->foreignId('league_id')->constrained();
       $table->unsignedInteger('matchday');
       $table->foreignId('home_team_id')->constrained('teams');
       $table->foreignId('away_team_id')->constrained('teams');

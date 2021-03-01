@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -12,11 +13,6 @@ class Table extends Model
   protected $casts = [
     'completed' => 'boolean'
   ];
-
-  public function league()
-  {
-    return $this->belongsTo(League::class);
-  }
 
   public function season()
   {

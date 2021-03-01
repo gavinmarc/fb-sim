@@ -14,7 +14,7 @@ use Illuminate\Support\Collection;
 class MatchProbabilityService
 {
   /** @var Collection */
-  private $leagueFixtures;
+  private $fixtures;
 
   /** @var integer */
   private $season;
@@ -34,12 +34,12 @@ class MatchProbabilityService
     $awayTeam = $fixture->awayTeam;
 
     $this->season = $fixture->season_id;
-    $this->leagueFixtures =  $this->loadFixtures($fixture, $this->season);
+    $this->fixtures =  $this->loadFixtures($fixture, $this->season);
 
     // load last seasons fixtures, if not enough fixtures are completed 
-    if (count($this->leagueFixtures) < 45) {
+    if (count($this->fixtures) < 45) {
       $this->lastSeason = Season::lastSeason($fixture->league);
-      $this->leagueFixtures = $this->leagueFixtures->merge(
+      $this->fixtures = $this->fixtures->merge(
         $this->loadFixtures($fixture, $this->lastSeason)
       );
     }
@@ -51,7 +51,7 @@ class MatchProbabilityService
   }
 
   /**
-   * Loads league fixtures for the given season id.
+   * Loads fixtures for the given season id.
    * 
    * @param  Fixture $fixture
    * @param  int $seasonId
@@ -59,10 +59,7 @@ class MatchProbabilityService
    */
   private function loadFixtures(Fixture $fixture, int $seasonId)
   {
-    return Fixture::query()
-      ->where('league_id', $fixture->league_id)
-      ->completedForSeason($seasonId)
-      ->get();
+    return Fixture::completedForSeason($seasonId)->get();
   }
 
   /**
@@ -122,7 +119,7 @@ class MatchProbabilityService
   {
     $homeTeamAttackStrength = $this->attackStrength($homeTeam, LocationEnum::HOME);
     $awayTeamDefensiveStrength = $this->defensiveStrength($awayTeam, LocationEnum::AWAY);
-    $avgHomeLeagueGoals = $this->leagueFixtures->sum('home_team_goals') / $this->leagueFixtures->count();
+    $avgHomeLeagueGoals = $this->fixtures->sum('home_team_goals') / $this->fixtures->count();
     return $homeTeamAttackStrength * $awayTeamDefensiveStrength * $avgHomeLeagueGoals;
   }
 
@@ -137,7 +134,7 @@ class MatchProbabilityService
   {
     $awayTeamAttackStrength = $this->attackStrength($awayTeam, LocationEnum::AWAY);
     $homeTeamDefensiveStrength = $this->defensiveStrength($homeTeam, LocationEnum::HOME);
-    $avgAwayLeagueGoals = $this->leagueFixtures->sum('away_team_goals') / $this->leagueFixtures->count();
+    $avgAwayLeagueGoals = $this->fixtures->sum('away_team_goals') / $this->fixtures->count();
     return $awayTeamAttackStrength * $homeTeamDefensiveStrength * $avgAwayLeagueGoals;
   }
 
@@ -182,7 +179,7 @@ class MatchProbabilityService
     }
 
     $avgTeamGoals = $teamFixtures->sum("{$attribute}_team_goals") / $teamFixtures->count();
-    $avgLeagueGoals = $this->leagueFixtures->sum("{$attribute}_team_goals") / $this->leagueFixtures->count();
+    $avgLeagueGoals = $this->fixtures->sum("{$attribute}_team_goals") / $this->fixtures->count();
     
     return $avgTeamGoals / $avgLeagueGoals;
   }

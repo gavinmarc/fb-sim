@@ -3,7 +3,6 @@
 namespace Database\Factories;
 
 use App\Models\Fixture;
-use App\Models\League;
 use App\Models\Season;
 use App\Models\Team;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -26,7 +25,6 @@ class FixtureFactory extends Factory
   {
     return [
       'season_id' => Season::factory(),
-      'league_id' => League::factory(),
       'home_team_id' => Team::factory(),
       'away_team_id' => Team::factory(),
       'matchday' => $this->faker->numberBetween(1, 34),

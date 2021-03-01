@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Events\MatchdayCompleted;
 use App\Listeners\UpdateLeagueTable;
+use App\Listeners\UpdateRecords;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Event;
 
@@ -17,6 +18,7 @@ class EventServiceProvider extends ServiceProvider
   protected $listen = [
     MatchdayCompleted::class => [
       UpdateLeagueTable::class,
+      UpdateRecords::class,
     ],
   ];
 

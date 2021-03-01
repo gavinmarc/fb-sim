@@ -2,14 +2,12 @@
 
 namespace App\Http\Livewire;
 
-use App\Models\League;
 use App\Models\Season;
+use App\Models\Table;
 use Livewire\Component;
 
 class LeagueTable extends Component
 {
-  public $league;
-
   public $table = [];
 
   public $season = null;
@@ -20,10 +18,8 @@ class LeagueTable extends Component
 
   public function mount()
   {
-    $this->league = League::find(1);
-
     if (!$this->season) {
-      $this->season = Season::currentSeason($this->league);
+      $this->season = Season::currentSeason();
     }
 
     $this->loadTable();
@@ -31,8 +27,7 @@ class LeagueTable extends Component
 
   private function loadTable()
   {
-    $this->table = $this->league
-      ->tables()
+    $this->table = Table::query()
       ->where('season_id', $this->season)
       ->with(['entries', 'entries.team'])
       ->first();

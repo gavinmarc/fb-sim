@@ -2,24 +2,23 @@
 
 namespace App\Services;
 
-use App\Models\League;
+use App\Models\Fixture;
 use App\Models\Season;
+use App\Models\Team;
 use ScheduleBuilder;
 
 class SeasonService
 {
   /**
-   * Creates a new season for the given league and 
-   * generates all fixtures.
+   * Creates a new season and generates all fixtures.
    * 
-   * @param  League $league
    * @param  boolean $force
    * @return Season
    */
-  public function new(League $league, bool $force = false)
+  public function new(bool $force = false)
   {
-    // check if the league still has fixtures to play
-    $fixture = $league->fixtures()
+    // check if the current season is complete
+    $fixture = Fixture::query()
       ->with('season')
       ->notCompleted()
       ->orderBy('season_id', 'asc')
@@ -30,13 +29,13 @@ class SeasonService
       return $fixture->season;
     }
 
-    $season = $this->createSeason($league);
+    $season = $this->createSeason();
 
-    $schedule = $this->createSchedule($league);
+    $schedule = $this->createSchedule();
 
     $fixtures = $this->formatFixtures($schedule, $season);
     
-    $league->fixtures()->createMany($fixtures);
+    Fixtures::create($fixtures);
 
     return $season;
   }
@@ -63,31 +62,29 @@ class SeasonService
   }
 
   /**
-   * Creates a new schedule for the given league.
+   * Creates a new schedule.
    * 
-   * @param  League $league
    * @return array
    */
-  private function createSchedule(League $league)
+  private function createSchedule()
   {
-    $teams = $league->teams->pluck('id')->toArray();
+    $teams = Team::pluck('id')->toArray();
 
-    return (new ScheduleBuilder($teams, $league->matchdays))->build()->full();
+    return (new ScheduleBuilder($teams, matchdays()))->build()->full();
   }
 
   /**
-   * Creates a new season. If the league has no fixtures for the current season,
+   * Creates a new season. If the current seaosn has no fixtures,
    * the current season gets returned.
    * 
-   * @param  League $league
    * @return Season
    */
-  private function createSeason(League $league)
+  private function createSeason()
   {
-    $currentSeason = Season::latest()->first();
+    $currentSeason = Season::currentSeason();
 
     // check if the current season has games attached
-    if ($league->fixtures()->forSeason($currentSeason->id)->count() == 0) {
+    if (Fixture::forSeason($currentSeason->id)->count() == 0) {
       return $currentSeason;
     }
     

@@ -15,11 +15,11 @@
           <x-nav-link :href="route('home')" :active="request()->routeIs('home')">
             {{ __('Home') }}
           </x-nav-link>
-          <x-nav-link :href="route('statistic')" :active="request()->routeIs('statistic')">
-            {{ __('Statistic') }}
+          <x-nav-link :href="route('records')" :active="request()->routeIs('records')">
+            {{ __('Records') }}
           </x-nav-link>
-          <x-nav-link :href="route('season')" :active="request()->routeIs('season')">
-            {{ __('Season') }}
+          <x-nav-link :href="route('seasons')" :active="request()->routeIs('seasons')">
+            {{ __('Seasons') }}
           </x-nav-link>
         </div>
       </div>
@@ -81,11 +81,11 @@
       <x-responsive-nav-link :href="route('home')" :active="request()->routeIs('home')">
         {{ __('Home') }}
       </x-responsive-nav-link>
-      <x-responsive-nav-link :href="route('statistic')" :active="request()->routeIs('statistic')">
-        {{ __('Statistic') }}
+      <x-responsive-nav-link :href="route('records')" :active="request()->routeIs('records')">
+        {{ __('Records') }}
       </x-responsive-nav-link>
-      <x-responsive-nav-link :href="route('season')" :active="request()->routeIs('season')">
-        {{ __('Season') }}
+      <x-responsive-nav-link :href="route('seasons')" :active="request()->routeIs('seasons')">
+        {{ __('Seasons') }}
       </x-responsive-nav-link>
     </div>
 

@@ -15,7 +15,7 @@ class DatabaseSeeder extends Seeder
   {
     $this->call([
       AdminSeeder::class,
-      LeagueSeeder::class
+      FixtureSeeder::class
     ]);
   }
 }

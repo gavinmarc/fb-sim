@@ -5,7 +5,7 @@ namespace App\Listeners;
 use App\Events\MatchdayCompleted;
 use Facades\App\Services\TableService;
 
-class UpdateLeagueTable
+class UpdateRecords
 {
   /**
    * Handle the event.
@@ -15,8 +15,6 @@ class UpdateLeagueTable
    */
   public function handle(MatchdayCompleted $event)
   {
-    $fixture = $event->fixtures->first();
-
-    TableService::updateOrCreate($fixture->season_id);
+    RecordService::updateOrCreate();
   }
 }

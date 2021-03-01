@@ -15,11 +15,6 @@ class Team extends Model
     'logo'
   ];
 
-  public function league()
-  {
-    return $this->belongsTo(League::class);
-  }
-
   public function homeFixtures()
   {
     return $this->hasMany(Fixture::class, 'home_team_id')

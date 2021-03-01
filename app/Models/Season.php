@@ -9,20 +9,18 @@ class Season extends Model
 {
   use HasFactory;
 
-  public static function lastSeason($model)
+  public static function lastSeason()
   {
-    return $model->fixtures()
+    return Fixture::query()
+      ->completed()
       ->orderBy('season_id', 'desc')
-      ->select(['season_id'])
       ->distinct('season_id')
       ->pluck('season_id')
       ->get(1);
   }
 
-  public static function currentSeason($model)
+  public static function currentSeason()
   {
-    return $model->fixtures()
-      ->completed()
-      ->max('season_id');
+    return Fixture::completed()->max('season_id');
   }
 }

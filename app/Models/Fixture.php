@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\OutcomeEnum;
 use App\Helper\Outcome;
 use Facades\App\Services\FixtureService;
+use Facades\App\Services\SeasonService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -36,11 +37,6 @@ class Fixture extends Model
   public function scopeNotCompleted(Builder $query)
   {
     return $query->whereNull('home_team_goals')->whereNull('away_team_goals');
-  }
-
-  public function league()
-  {
-    return $this->belongsTo(League::class);
   }
 
   public function season()
@@ -78,6 +74,27 @@ class Fixture extends Model
       'home_team_goals' => $result->homeGoals,
       'away_team_goals' => $result->awayGoals,
     ]);
+  }
+
+  public static function nextMatchday()
+  {
+    $lastFixture = self::completed()->first();
+
+    $matchday = $lastFixture->matchday + 1;
+    $seasonId = $lastFixture->season_id;
+
+    // check if last season is complete and create new fixtures
+    if ($lastFixture->matchday == matchdays()) {
+      $season = SeasonService::new();
+      $seasonId = $season->id;
+      $matchday = 1;
+    }
+
+    return self::query()
+      ->with('homeTeam', 'awayTeam')
+      ->where('season_id', $seasonId)
+      ->where('matchday', $matchday)
+      ->get();
   }
 
 }
