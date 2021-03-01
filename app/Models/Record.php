@@ -9,4 +9,8 @@ class Record extends Model
 {
   use HasFactory;
 
+  public function recordable()
+  {
+    return $this->morphTo();
+  }
 }

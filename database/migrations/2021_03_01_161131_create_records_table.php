@@ -15,6 +15,9 @@ class CreateRecordsTable extends Migration
   {
     Schema::create('records', function (Blueprint $table) {
       $table->id();
+      $table->morphs('recordable');
+      $table->string('title');
+      $table->integer('value')->default(0);
       $table->timestamps();
     });
   }

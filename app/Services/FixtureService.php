@@ -14,7 +14,7 @@ class FixtureService
   {
     $fixtures->each->simulate();
 
-    MatchdayCompleted::dispatch($fixtures);
+    event(new MatchdayCompleted($fixtures));
   }
 
   /**

@@ -17,7 +17,7 @@ class RecordController extends Controller
   public function __invoke(Request $request)
   {
     return view('record', [
-      // 'records' => Record::all()
+      'records' => Record::all()
     ]);
   }
 }

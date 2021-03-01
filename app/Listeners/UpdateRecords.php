@@ -3,7 +3,7 @@
 namespace App\Listeners;
 
 use App\Events\MatchdayCompleted;
-use Facades\App\Services\TableService;
+use Facades\App\Services\RecordService;
 
 class UpdateRecords
 {
@@ -15,6 +15,6 @@ class UpdateRecords
    */
   public function handle(MatchdayCompleted $event)
   {
-    RecordService::updateOrCreate();
+    RecordService::create();
   }
 }

@@ -2,10 +2,10 @@
 
 namespace App\Services;
 
-use App\Enums\RecordTypeEnum;
 use App\Models\Fixture;
 use App\Models\Record;
 use App\Models\Table;
+use App\Models\Team;
 
 class RecordService 
 { 
@@ -20,12 +20,12 @@ class RecordService
    * 
    * @return 
    */
-  public function updateOrCreate()
+  public function create()
   {
     $records = collect();
 
     $this->tables = Table::query()
-      ->with(['season', 'entries.team'])
+      ->with('entries.team')
       ->get();
 
     $this->entries = $this->tables->pluck('entries')->flatten();
@@ -42,13 +42,12 @@ class RecordService
     // delete all records and create new ones
     Record::truncate();
 
-    Record::create($records);
+    $records->each(fn ($data) => Record::create($data));
   }  
 
   /** Team with the most titles all-time */
   private function teamMostTitles()
   {
-    $type = RecordTypeEnum::TEAM;
     $title = 'Most titles (all-time)';
 
     $entries = $this->entries
@@ -57,16 +56,17 @@ class RecordService
       ->sortByDesc(fn ($entry) => count($entry))
       ->first();
 
-    $team = $entries->first()->team;
+    $recordable_id = $entries->first()->team->id;
+    $recordable_type = Team::class;
+    
     $value = $entries->count();
 
-    return compact('type', 'title', 'team', 'value');
+    return compact('recordable_type', 'recordable_id', 'title', 'value');
   }
 
   /** Most goals in one season */
   private function seasonMostGoals()
   {
-    $type = RecordTypeEnum::SEASON;
     $title = 'Most goal-scoring season';
 
     $table = $this->tables
@@ -77,16 +77,17 @@ class RecordService
       ->sortByDesc('goals')
       ->first();
 
-    $season = $table->season;
+    $recordable_id = $table->season_id;
+    $recordable_type = Season::class;
+
     $value = $table->goals;
 
-    return compact('type', 'title', 'season', 'value');
+    return compact('recordable_type', 'recordable_id', 'title', 'value');
   }
 
   /** Most goals in a match that ended with a draw */
   private function fixtureHighestDraw()
   {
-    $type = RecordTypeEnum::FIXTURE;
     $title = 'Highest goal-scoring draw';
 
     $fixture = Fixture::query()
@@ -97,8 +98,11 @@ class RecordService
       ->orderBy('goals', 'desc')
       ->first();
 
+    $recordable_id = $fixture->id;
+    $recordable_type = Fixture::class;
+
     $value = $fixture->goals;
 
-    return compact('type', 'title', 'fixture', 'value');
+    return compact('recordable_type', 'recordable_id', 'title', 'value');
   }
 }
