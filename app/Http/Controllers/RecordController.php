@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Fixture;
 use App\Models\Record;
-use Facades\App\Services\RecordService;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Http\Request;
 
 class RecordController extends Controller
@@ -17,7 +18,12 @@ class RecordController extends Controller
   public function __invoke(Request $request)
   {
     return view('record', [
-      'records' => Record::all()
+      'recordGroups' => Record::query()
+        ->with(['recordable' => function (MorphTo $morphTo) {
+          $morphTo->morphWith([Fixture::class => ['homeTeam', 'awayTeam']]);
+        }])
+        ->get()
+        ->groupBy('recordable_type')
     ]);
   }
 }

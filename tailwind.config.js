@@ -23,6 +23,7 @@ module.exports = {
 
   variants: {
     extend: {
+      margin: ['first', 'last'],
       borderWidth: ['last'],
       opacity: ['disabled'],
     },
